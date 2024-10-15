@@ -67,13 +67,6 @@ def RunProgram(program:List[str]):
 		executingLine += 1
 		line = program[executingLine]
 		tokens = line.split()
-		# if tokens == "programstart":
-		# 	continue
-		# if tokens == "programend":
-		# 	print("end")
-		# 	PrintoutVariables(variables)
-		# 	break
-
 		match tokens[0]:
 			case "clear":
 				variables[tokens[1]] = 0

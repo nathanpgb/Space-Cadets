@@ -1,0 +1,10 @@
+clear X;
+#this is a comment
+#this is another comment
+incr X 2;
+clear Y;
+while X != Y do;
+decr X;
+end;
+end;
+#endcomment?
