@@ -42,9 +42,9 @@ def ParseProgramFileByLine(path):
                 program.append("")
             else:
                 program.append(line.split(";")[0])
-    for endline in reversed(program):
-        if endline == "":
-            program.pop()
+    # for endline in reversed(program):
+    #     if endline == "":
+    #         program.pop()
     program.append("programend")
     return program
 

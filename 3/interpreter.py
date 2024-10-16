@@ -1,6 +1,7 @@
 import re
 from typing import List,Dict,Tuple
 from abc import ABC
+from syntax import goodAsItIsP,ifP,elseIfP,elseP,whileP,endP
 
 class Branch(ABC):
     def __init__(self,startLine):
@@ -36,64 +37,47 @@ def RaiseSyntaxError(line,program,message="Invalid Syntax"):
 
 
 def CheckSyntax(program:List[str]):
-    numberRegex = "[1-9][0-9]*"
-    variableNameRegex = "[a-zA-Z][a-zA-Z0-9]*"
-    numericArgumentRegex = f"{numberRegex}|{variableNameRegex}"
-    numericComparisonRegex = f"(=|!=|>|>=|<|<=)"
-    numericOperatorRegex = r"\+|\-|\*|\/"
-    # basicNumericExpressionRegex = f"{valueArgumentRegex} {numericOperatorRegex} {valueArgumentRegex}"
-    evaluateableNumericRegex = f"({numericArgumentRegex} {numericOperatorRegex})+ {numericArgumentRegex}"
-    evaluateableBooleanRegex = f"True|False|({evaluateableNumericRegex} {numericComparisonRegex} {evaluateableNumericRegex})"
-    evaluateableRegex = f"{evaluateableNumericRegex}|{evaluateableBooleanRegex}"
-
-    clearRegex = f"clear {variableNameRegex}"
-    incrementRegex = f"(incr|decr) {variableNameRegex} {numberRegex}"
-    whileRegex = f"while {evaluateableBooleanRegex} do"
-    ifRegex = f"if {evaluateableBooleanRegex} do"
-
-    elseIfRegex = f"else if {evaluateableBooleanRegex} do"
-    elseRegex = f"else do"
-    setRegex = f"set {variableNameRegex} to {evaluateableNumericRegex}"
-    endRegex = "end"
-
-    goodAsItIsRegex = f"{clearRegex}|{incrementRegex}|{setRegex}"
-
     branchStack = []
 
     for i,line in enumerate(program[1:-1],1):
         tokens = line.split()
         #begin lots of ifs 
-        if re.fullmatch(goodAsItIsRegex,line):
-            pass
-        elif re.fullmatch(whileRegex,line):
+        if re.fullmatch(whileP,line):
             branchStack.append(("while",i))
-        elif re.fullmatch(ifRegex,line):
+        elif re.fullmatch(ifP,line):
             branchStack.append(("if",i))
-        elif re.fullmatch(elseIfRegex,line):
-            if branchStack[-1][0] in ("if","elseIf"):
-                branchStack.append(("elseIf",i))
+        elif re.fullmatch(elseIfP,line):
+            if branchStack[-1][0] in ("if","else if"):
+                branchStack.append(("else if",i))
             else:
-                RaiseSyntaxError(i,program)     
-        elif re.fullmatch(elseRegex,line):
-            if branchStack[-1][0] in ("if","elseIf"):
+                RaiseSyntaxError(i,program,"else if has no valid preceding if")     
+        elif re.fullmatch(elseP,line):
+            if branchStack[-1][0] in ("if","else if"):
                 branchStack.append(("else",i))
             else:
-                RaiseSyntaxError(i,program)
-        elif re.fullmatch(endRegex,line):
+                RaiseSyntaxError(i,program,"else has no valid preceeding if")
+        elif re.fullmatch(endP,line):
             try:
                 lastBranch = branchStack.pop()
             except IndexError:
-                RaiseSyntaxError(i,program)
+                RaiseSyntaxError(i,program,"unmatched end")
             else:
-                while lastBranch[0] in ("else","elseIf"):
+                while lastBranch[0] in ("else","else if"):
                     lastBranch = branchStack.pop()
-                if lastBranch[0] == "if":
-                    branchStack.pop()
+                    
+        elif re.fullmatch(goodAsItIsP,line):
+            pass
+        elif line == "":
+            pass
         else:
-            RaiseSyntaxError(i,program)
+            RaiseSyntaxError(i,program,"line does not match any valid syntax")
             
 
 
 
 def Run(program):
     ...
+
+def main():
+
+    CheckSyntax("testprogram")
