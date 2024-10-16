@@ -1,7 +1,7 @@
 def main():
     # inputPath = input("enter program name: ") 
     inputPath = 'testprogram'
-    program = ParseProgramFile(inputPath)
+    program = ParseProgramFileByLine(inputPath)
     print(program)
 
 def ParseProgramFile(path):
@@ -11,7 +11,13 @@ def ParseProgramFile(path):
         colonSeparated = pureText.split(";")
         program = ["programstart"]
         for command in colonSeparated:
-            command = command.split("\n")[-1]
+            for line in command.split("\n"):
+                if line == "":
+                    program.append()
+                if line[0] == "#":
+                    program.append("")
+                else:
+                    program.append(line)
             
             program.append(command)
         for trailing in reversed(program):
@@ -23,6 +29,25 @@ def ParseProgramFile(path):
                 program.append("programend")
                 break
     return program
+
+def ParseProgramFileByLine(path):
+    path = f"/home/nate/Desktop/Code/Space-Cadets/3/{path}.txt"
+    program = ["programstart"]
+    with open(path,"r") as f:
+        for line in f:
+            line = line.lstrip()
+            if line ==  "":
+                program.append("")
+            elif line[0] == "#":
+                program.append("")
+            else:
+                program.append(line.split(";")[0])
+    for endline in reversed(program):
+        if endline == "":
+            program.pop()
+    program.append("programend")
+    return program
+
 
 if __name__ == '__main__':
     main()
